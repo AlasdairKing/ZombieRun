@@ -3,7 +3,7 @@ import { App } from './app/app.ts'
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    void navigator.serviceWorker.register('/sw.js')
+    void navigator.serviceWorker.register('sw.js')
   })
 }
 
