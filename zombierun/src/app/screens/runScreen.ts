@@ -6,6 +6,7 @@ import {
   formatDistance,
   formatDuration,
   formatPace,
+  isRecordableSession,
   SessionTracker,
 } from '../../session/tracker.ts'
 import { loadProfile, saveProfile } from '../../storage/profile.ts'
@@ -106,6 +107,12 @@ export function renderRunScreen(root: HTMLElement, options: RunScreenOptions): v
     map.destroy()
 
     const session = tracker.finish()
+
+    if (!isRecordableSession(session)) {
+      options.onCancel()
+      return
+    }
+
     saveSession(session)
     saveProfile(updateProfileAfterSession(loadProfile(), session))
     options.onComplete(session)

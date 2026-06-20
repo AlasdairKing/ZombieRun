@@ -9,6 +9,18 @@ const MIN_POINT_DISTANCE_M = 4
 
 export const SAFE_HOUSE_RADIUS_M = 25
 export const SAFE_HOUSE_LEAVE_RADIUS_M = 40
+export const MIN_RECORDABLE_DURATION_S = 10
+export const MIN_RECORDABLE_DISTANCE_M = 50
+
+export function isRecordableSession(session: {
+  durationSeconds: number
+  distanceMeters: number
+}): boolean {
+  return (
+    session.durationSeconds >= MIN_RECORDABLE_DURATION_S &&
+    session.distanceMeters >= MIN_RECORDABLE_DISTANCE_M
+  )
+}
 
 export class SessionTracker {
   readonly startedAt = new Date()
