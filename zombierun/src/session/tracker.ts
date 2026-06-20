@@ -7,12 +7,17 @@ const ROUTE_CHANGE_ANGLE = 55
 const ROUTE_CHANGE_MIN_SPEED_MPS = 0.8
 const MIN_POINT_DISTANCE_M = 4
 
+export const SAFE_HOUSE_RADIUS_M = 25
+export const SAFE_HOUSE_LEAVE_RADIUS_M = 40
+
 export class SessionTracker {
   readonly startedAt = new Date()
   readonly isCalibration: boolean
   readonly zombieCount: number
 
   private route: LatLng[] = []
+  private startLocation: LatLng | null = null
+  private hasLeftSafeHouse = false
   private lastPosition: LatLng | null = null
   private lastBearing: number | null = null
   private lastTimestamp: number | null = null
@@ -28,6 +33,28 @@ export class SessionTracker {
 
   wasCaught(): boolean {
     return this.caught
+  }
+
+  getStartLocation(): LatLng | null {
+    return this.startLocation
+  }
+
+  setStartLocation(location: LatLng): void {
+    if (!this.startLocation) {
+      this.startLocation = location
+    }
+  }
+
+  checkSafeHouseReturn(position: LatLng): boolean {
+    if (!this.startLocation) return false
+
+    const distance = haversineMeters(this.startLocation, position)
+
+    if (!this.hasLeftSafeHouse && distance >= SAFE_HOUSE_LEAVE_RADIUS_M) {
+      this.hasLeftSafeHouse = true
+    }
+
+    return this.hasLeftSafeHouse && distance <= SAFE_HOUSE_RADIUS_M
   }
 
   addPosition(position: GeoPosition): void {

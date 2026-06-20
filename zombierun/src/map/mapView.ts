@@ -16,9 +16,22 @@ const ZOMBIE_ICON = L.divIcon({
   iconAnchor: [14, 14],
 })
 
+const SAFE_HOUSE_ICON = L.divIcon({
+  className: 'safe-house-marker',
+  html: `<div class="safe-house-dot" aria-label="Safe house">
+    <div class="safe-house-walls"></div>
+    <div class="safe-house-roof"></div>
+    <div class="safe-house-body"></div>
+    <div class="safe-house-door"></div>
+  </div>`,
+  iconSize: [32, 32],
+  iconAnchor: [16, 16],
+})
+
 export class MapView {
   private map: L.Map
   private runnerMarker: L.Marker | null = null
+  private safeHouseMarker: L.Marker | null = null
   private routeLine: L.Polyline | null = null
   private zombieMarkers = new Map<string, L.Marker>()
   private threatCircles = new Map<string, L.Circle>()
@@ -39,6 +52,19 @@ export class MapView {
 
   setView(center: LatLng, zoom = 17): void {
     this.map.setView([center.lat, center.lng], zoom)
+  }
+
+  setSafeHouse(position: LatLng): void {
+    const latLng: L.LatLngExpression = [position.lat, position.lng]
+
+    if (!this.safeHouseMarker) {
+      this.safeHouseMarker = L.marker(latLng, {
+        icon: SAFE_HOUSE_ICON,
+        zIndexOffset: -100,
+      }).addTo(this.map)
+    } else {
+      this.safeHouseMarker.setLatLng(latLng)
+    }
   }
 
   updateRunner(position: LatLng): void {
