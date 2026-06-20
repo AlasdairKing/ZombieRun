@@ -1,6 +1,7 @@
 import type { AppActions } from '../app.ts'
 import type { UserProfile } from '../../types.ts'
 import { getZombieCount } from '../../fitness/difficulty.ts'
+import { appVersion } from '../../version.ts'
 
 export function renderHomeScreen(
   root: HTMLElement,
@@ -56,6 +57,7 @@ export function renderHomeScreen(
 
       <footer class="home-footer">
         <p>Live map · GPS tracking · Local session storage</p>
+        <p class="app-version">v${appVersion}</p>
       </footer>
     </div>
   `
