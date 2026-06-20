@@ -27,15 +27,17 @@ export function updateProfileAfterSession(
 
   if (session.isCalibration) {
     updated.calibrated = true
-    updated.baselinePaceMinPerKm = session.averagePaceMinPerKm
+    if (session.averagePaceMinPerKm > 0) {
+      updated.baselinePaceMinPerKm = session.averagePaceMinPerKm
+    }
     updated.baselineDistanceMeters = session.distanceMeters
     updated.fitnessLevel = 1
     return updated
   }
 
+  const baselinePace = Math.max(profile.baselinePaceMinPerKm, 0.001)
   const paceImprovement =
-    (profile.baselinePaceMinPerKm - session.averagePaceMinPerKm) /
-    profile.baselinePaceMinPerKm
+    (baselinePace - session.averagePaceMinPerKm) / baselinePace
   const distanceImprovement =
     (session.distanceMeters - profile.baselineDistanceMeters) /
     Math.max(profile.baselineDistanceMeters, 1)
@@ -45,7 +47,7 @@ export function updateProfileAfterSession(
   if (performanceScore > 0.05) {
     updated.fitnessLevel = Math.min(10, profile.fitnessLevel + 1)
     updated.baselinePaceMinPerKm =
-      profile.baselinePaceMinPerKm * 0.7 + session.averagePaceMinPerKm * 0.3
+      baselinePace * 0.7 + session.averagePaceMinPerKm * 0.3
     updated.baselineDistanceMeters =
       profile.baselineDistanceMeters * 0.7 + session.distanceMeters * 0.3
   } else if (performanceScore < -0.1) {

@@ -102,12 +102,14 @@ export function renderRunScreen(root: HTMLElement, options: RunScreenOptions): v
   }
 
   const tick = (now: number) => {
+    if (finished) return
+
     const delta = Math.min(1, (now - lastTick) / 1000)
     lastTick = now
 
     const runner = tracker.getLastPosition()
     if (runner) {
-      void zombies.update(runner, delta)
+      zombies.update(runner, delta)
       map.updateZombies(zombies.getZombies())
       tracker.trackZombieProximity(runner, zombies.getZombies())
 
@@ -130,6 +132,8 @@ export function renderRunScreen(root: HTMLElement, options: RunScreenOptions): v
 
   geo.start(
     async (position) => {
+      if (finished) return
+
       tracker.addPosition(position)
       map.updateRunner(position.coords)
       map.updateRoute(tracker.getRoute())
@@ -140,6 +144,8 @@ export function renderRunScreen(root: HTMLElement, options: RunScreenOptions): v
           ? 'Calibration run — keep a steady pace'
           : 'Run! Zombies are closing in…'
         await zombies.spawnNear(position.coords, zombieCount)
+        if (finished) return
+
         map.updateZombies(zombies.getZombies())
         animationFrame = requestAnimationFrame(tick)
       }
