@@ -84,6 +84,15 @@ export function renderRunScreen(root: HTMLElement, options: RunScreenOptions): v
   let lastTick = performance.now()
   let animationFrame = 0
   let hudInterval: ReturnType<typeof setInterval> | null = null
+  let statusDismissTimer: ReturnType<typeof setTimeout> | null = null
+
+  const dismissStatusAfterDelay = () => {
+    if (statusDismissTimer) clearTimeout(statusDismissTimer)
+    statusDismissTimer = setTimeout(() => {
+      statusDismissTimer = null
+      statusEl.hidden = true
+    }, 5000)
+  }
 
   const finishRun = () => {
     if (finished) return
@@ -91,6 +100,7 @@ export function renderRunScreen(root: HTMLElement, options: RunScreenOptions): v
 
     cancelAnimationFrame(animationFrame)
     if (hudInterval) clearInterval(hudInterval)
+    if (statusDismissTimer) clearTimeout(statusDismissTimer)
     geo.stop()
     proximity.dispose()
     map.destroy()
@@ -121,6 +131,8 @@ export function renderRunScreen(root: HTMLElement, options: RunScreenOptions): v
       alertEl.hidden = nearest > PROXIMITY_ALERT_M
 
       if (tracker.wasCaught()) {
+        if (statusDismissTimer) clearTimeout(statusDismissTimer)
+        statusEl.hidden = false
         statusEl.textContent = 'Caught! Ending run…'
         finishRun()
         return
@@ -140,9 +152,11 @@ export function renderRunScreen(root: HTMLElement, options: RunScreenOptions): v
 
       if (!started) {
         started = true
+        statusEl.hidden = false
         statusEl.textContent = options.calibration
           ? 'Calibration run — keep a steady pace'
           : 'Run! Zombies are closing in…'
+        dismissStatusAfterDelay()
         await zombies.spawnNear(position.coords, zombieCount)
         if (finished) return
 
@@ -151,6 +165,8 @@ export function renderRunScreen(root: HTMLElement, options: RunScreenOptions): v
       }
     },
     (message) => {
+      if (statusDismissTimer) clearTimeout(statusDismissTimer)
+      statusEl.hidden = false
       statusEl.textContent = `GPS error: ${message}`
     },
     options.simulate,
