@@ -137,6 +137,14 @@ export function renderRunScreen(root: HTMLElement, options: RunScreenOptions): v
         finishRun()
         return
       }
+
+      if (tracker.checkSafeHouseReturn(runner)) {
+        if (statusDismissTimer) clearTimeout(statusDismissTimer)
+        statusEl.hidden = false
+        statusEl.textContent = 'Safe house reached — you are safe!'
+        finishRun()
+        return
+      }
     }
 
     animationFrame = requestAnimationFrame(tick)
@@ -152,10 +160,12 @@ export function renderRunScreen(root: HTMLElement, options: RunScreenOptions): v
 
       if (!started) {
         started = true
+        tracker.setStartLocation(position.coords)
+        map.setSafeHouse(position.coords)
         statusEl.hidden = false
         statusEl.textContent = options.calibration
-          ? 'Calibration run — keep a steady pace'
-          : 'Run! Zombies are closing in…'
+          ? 'Calibration run — leave the safe house and keep a steady pace'
+          : 'Run! Leave the safe house — zombies are closing in…'
         dismissStatusAfterDelay()
         await zombies.spawnNear(position.coords, zombieCount)
         if (finished) return
