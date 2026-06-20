@@ -45,6 +45,7 @@ export function renderHomeScreen(
           ${profile.calibrated ? 'Start run' : 'Start calibration'}
         </button>
         <button class="btn btn-secondary" id="view-history">Session history</button>
+        <button class="btn btn-secondary" id="view-settings">Settings</button>
       </div>
 
       ${
@@ -65,5 +66,9 @@ export function renderHomeScreen(
 
   root.querySelector('#view-history')?.addEventListener('click', () => {
     actions.navigate('history')
+  })
+
+  root.querySelector('#view-settings')?.addEventListener('click', () => {
+    actions.navigate('settings')
   })
 }

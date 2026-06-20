@@ -3,6 +3,7 @@ import { loadProfile } from '../storage/profile.ts'
 import { renderHistoryScreen } from './screens/historyScreen.ts'
 import { renderHomeScreen } from './screens/homeScreen.ts'
 import { renderRunScreen } from './screens/runScreen.ts'
+import { renderSettingsScreen } from './screens/settingsScreen.ts'
 import { renderSummaryScreen } from './screens/summaryScreen.ts'
 
 export interface AppActions {
@@ -52,6 +53,8 @@ export class App {
   }
 
   private render(): void {
+    this.profile = loadProfile()
+
     switch (this.currentScreen) {
       case 'home':
         renderHomeScreen(this.root, this.profile, this.actions, this.simulate)
@@ -61,6 +64,9 @@ export class App {
         break
       case 'history':
         renderHistoryScreen(this.root, this.actions)
+        break
+      case 'settings':
+        renderSettingsScreen(this.root, this.profile, this.actions)
         break
       case 'run':
         this.actions.startRun(!this.profile.calibrated)
