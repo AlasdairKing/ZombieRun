@@ -194,6 +194,12 @@ p {
   font-size: 0.85rem;
 }
 
+.app-version {
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
 /* Run screen */
 .run-screen {
   padding: 0;
