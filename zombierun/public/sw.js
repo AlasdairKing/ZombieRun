@@ -1,5 +1,16 @@
 const CACHE_NAME = 'zombierun-v1'
-const ASSETS = ['/', '/index.html', '/manifest.json', '/favicon.svg']
+const ASSETS = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/favicon.svg',
+  '/icons/favicon-16x16.png',
+  '/icons/favicon-32x32.png',
+  '/icons/apple-touch-icon.png',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/icon-maskable-512.png',
+]
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
