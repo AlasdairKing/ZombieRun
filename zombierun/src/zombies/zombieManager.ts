@@ -13,6 +13,7 @@ function createId(): string {
 export class ZombieManager {
   private zombies: ZombieState[] = []
   private fitnessLevel = 1
+  private rerouteInFlight = new Set<string>()
 
   setFitnessLevel(level: number): void {
     this.fitnessLevel = level
@@ -48,14 +49,16 @@ export class ZombieManager {
     this.zombies = spawned
   }
 
-  async update(runner: LatLng, deltaSeconds: number): Promise<void> {
+  update(runner: LatLng, deltaSeconds: number): void {
     const now = Date.now()
 
     for (const zombie of this.zombies) {
-      if (now - zombie.lastRouteUpdate > 12_000) {
-        zombie.route = await routeFootPath(zombie.position, runner)
-        zombie.routeIndex = 1
-        zombie.lastRouteUpdate = now
+      if (
+        now - zombie.lastRouteUpdate > 12_000 &&
+        !this.rerouteInFlight.has(zombie.id)
+      ) {
+        this.rerouteInFlight.add(zombie.id)
+        void this.rerouteZombie(zombie, runner)
       }
 
       const moved = advanceAlongRoute(
@@ -66,6 +69,16 @@ export class ZombieManager {
       )
       zombie.position = moved.position
       zombie.routeIndex = moved.routeIndex
+    }
+  }
+
+  private async rerouteZombie(zombie: ZombieState, runner: LatLng): Promise<void> {
+    try {
+      zombie.route = await routeFootPath(zombie.position, runner)
+      zombie.routeIndex = 1
+      zombie.lastRouteUpdate = Date.now()
+    } finally {
+      this.rerouteInFlight.delete(zombie.id)
     }
   }
 

@@ -109,7 +109,7 @@ export function renderRunScreen(root: HTMLElement, options: RunScreenOptions): v
 
     const runner = tracker.getLastPosition()
     if (runner) {
-      void zombies.update(runner, delta)
+      zombies.update(runner, delta)
       map.updateZombies(zombies.getZombies())
       tracker.trackZombieProximity(runner, zombies.getZombies())
 
