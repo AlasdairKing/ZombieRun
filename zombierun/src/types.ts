@@ -36,4 +36,4 @@ export interface ZombieState {
   wasNearRunner: boolean
 }
 
-export type AppScreen = 'home' | 'run' | 'summary' | 'history'
+export type AppScreen = 'home' | 'run' | 'summary' | 'history' | 'settings'
