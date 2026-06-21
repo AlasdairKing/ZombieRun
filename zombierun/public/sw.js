@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zombierun-v1'
+const CACHE_NAME = 'zombierun-v2'
 const ASSETS = [
   '/',
   '/index.html',
@@ -11,6 +11,28 @@ const ASSETS = [
   '/icons/icon-512.png',
   '/icons/icon-maskable-512.png',
 ]
+
+function isDevAsset(url) {
+  const path = url.pathname
+  return (
+    path.startsWith('/src/') ||
+    path.startsWith('/@') ||
+    path.includes('node_modules') ||
+    url.searchParams.has('import') ||
+    url.searchParams.has('t')
+  )
+}
+
+function isNetworkFirst(url) {
+  const path = url.pathname
+  return (
+    path === '/' ||
+    path.endsWith('.html') ||
+    path.startsWith('/assets/') ||
+    path.endsWith('.js') ||
+    path.endsWith('.css')
+  )
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -33,10 +55,11 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url)
   if (url.origin !== self.location.origin) return
+  if (isDevAsset(url)) return
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const fetchPromise = fetch(event.request)
+  if (isNetworkFirst(url)) {
+    event.respondWith(
+      fetch(event.request)
         .then((response) => {
           if (response.ok) {
             const clone = response.clone()
@@ -44,9 +67,21 @@ self.addEventListener('fetch', (event) => {
           }
           return response
         })
-        .catch(() => cached)
+        .catch(() => caches.match(event.request)),
+    )
+    return
+  }
 
-      return cached ?? fetchPromise
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached
+      return fetch(event.request).then((response) => {
+        if (response.ok) {
+          const clone = response.clone()
+          void caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
+        }
+        return response
+      })
     }),
   )
 })
