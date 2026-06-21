@@ -4,13 +4,19 @@ import { fileURLToPath } from 'node:url'
 
 import CopyWebpackPlugin from 'copy-webpack-plugin'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
+import webpack from 'webpack'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const appRoot = path.resolve(__dirname, 'zombierun')
 
+const { version } = JSON.parse(
+  fs.readFileSync(path.join(appRoot, 'package.json'), 'utf8'),
+)
+
 const htmlTemplate = fs
   .readFileSync(path.join(appRoot, 'index.html'), 'utf8')
   .replace(/<script type="module" src="\/src\/main\.ts"><\/script>\s*/, '')
+  .replace(/\s(href|src)="\/([^"]+)"/g, ' $1="./$2"')
 
 export default {
   mode: 'production',
@@ -43,6 +49,11 @@ export default {
     ],
   },
   plugins: [
+    new webpack.DefinePlugin({
+      __APP_VERSION__: JSON.stringify(version),
+      'import.meta.env.DEV': JSON.stringify(false),
+      'import.meta.env.PROD': JSON.stringify(true),
+    }),
     new HtmlWebpackPlugin({
       templateContent: htmlTemplate,
     }),
